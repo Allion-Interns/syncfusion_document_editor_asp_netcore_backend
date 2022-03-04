@@ -1,0 +1,14 @@
+[
+  {
+    "LanguadeID": 1033,
+    "DictionaryPath": "en_US.dic",
+    "AffixPath": "en_US.aff",
+    "PersonalDictPath": "customDict.dic"
+  },
+  {
+    "LanguadeID": 1053,
+    "DictionaryPath": "sv.dic",
+    "AffixPath": "sv.aff",
+    "PersonalDictPath": "customDict.dic"
+  }
+]
