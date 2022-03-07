@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Cors;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc;
+using Syncfusion.EJ2.DocumentEditor;
 using Syncfusion.EJ2.SpellChecker;
 using System;
 using System.Collections.Generic;
@@ -82,6 +83,67 @@ namespace Syncfusion_document_editor.Controllers
             public bool AddWord { get; set; }
 
         }
+
+
+
+
+        [AcceptVerbs("Post")]
+        [HttpPost]
+        [EnableCors("AllowAllOrigins")]
+        [Route("SystemClipboard")]
+        public string SystemClipboard([FromBody] CustomParameter param)
+        {
+            if (param.content != null && param.content != "")
+            {
+                try
+                {
+                    WordDocument document = WordDocument.LoadString(param.content, GetFormatType(param.type.ToLower()));
+                    string json = Newtonsoft.Json.JsonConvert.SerializeObject(document);
+                    document.Dispose();
+                    return json;
+                }
+                catch (Exception)
+                {
+                    return "";
+                }
+            }
+            return "";
+        }
+
+        public class CustomParameter
+        {
+            public string content { get; set; }
+            public string type { get; set; }
+        }
+
+
+        internal static FormatType GetFormatType(string format)
+        {
+            if (string.IsNullOrEmpty(format))
+                throw new NotSupportedException("EJ2 DocumentEditor does not support this file format.");
+            switch (format.ToLower())
+            {
+                case ".dotx":
+                case ".docx":
+                case ".docm":
+                case ".dotm":
+                    return FormatType.Docx;
+                case ".dot":
+                case ".doc":
+                    return FormatType.Doc;
+                case ".rtf":
+                    return FormatType.Rtf;
+                case ".txt":
+                    return FormatType.Txt;
+                case ".xml":
+                    return FormatType.WordML;
+                case ".html":
+                    return FormatType.Html;
+                default:
+                    throw new NotSupportedException("EJ2 DocumentEditor does not support this file format.");
+            }
+        }
+
 
 
 
