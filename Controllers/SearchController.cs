@@ -2,8 +2,10 @@
 using Microsoft.AspNetCore.Mvc;
 using Syncfusion.DocIO;
 using Syncfusion.DocIO.DLS;
+using Syncfusion_document_editor.Dtos;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
 
 
@@ -14,7 +16,7 @@ namespace Syncfusion_document_editor.Controllers
     public class SearchController : ControllerBase
     {
         [HttpGet]
-        public ActionResult<List<string>> GetResult()
+        public  ActionResult<List<SearchFindResponceDto>> GetResult()
         {
 
             //FindandHighlight();
@@ -54,42 +56,82 @@ namespace Syncfusion_document_editor.Controllers
 
 
 
-        static List<string> findAll()
+        static List<SearchFindResponceDto> findAll()
         {
+            var timer = new Stopwatch();
 
-           
-            string[] WordDocumentNames = Directory.GetFiles(@"Project01");
+            
+        
 
-            // FileStream[] fileStreams = new FileStream[WordDocumentNames.Length];
+        string[] WordDocumentNames = Directory.GetFiles(@"Project01");
+
 
             List<FileStream> fileStreams = new List<FileStream>();
 
 
             foreach (string WordDocumentName in WordDocumentNames)
             {
-                fileStreams.Add(new FileStream(WordDocumentName, FileMode.Open, FileAccess.ReadWrite));
+                //timer.Start();
+                //fileStreams.Add(new FileStream(WordDocumentName, FileMode.Open, FileAccess.ReadWrite, FileShare.ReadWrite));
+
+                //Console.WriteLine(timer.Elapsed.TotalMilliseconds);
+                //timer.Stop();
+
+                try
+                {
+
+
+
+                    timer.Start();
+                    fileStreams.Add(new FileStream(WordDocumentName, FileMode.Open, FileAccess.ReadWrite));
+
+                    Console.WriteLine("file open time "+ timer.Elapsed.TotalMilliseconds);
+                    timer.Stop();
+                }
+                catch (IOException )
+                {
+                    throw;
+                }
+
+
+                catch (Exception)
+                {
+
+                    throw;
+                }
+             
+              
             }
 
-            List<string> resultFilePath= new List<string>();
+            List<SearchFindResponceDto> resultFilePath = new List<SearchFindResponceDto>();
 
             foreach (FileStream fileStream in fileStreams)
             {
-                using(WordDocument document = new WordDocument(fileStream,FormatType.Automatic))
+                using (WordDocument document = new WordDocument(fileStream, FormatType.Automatic))
                 {
-                    TextSelection[] textSelection =  document.FindAll("apple", false, true);
+                    timer.Start();
+                    TextSelection[] textSelection = document.FindAll("pasindu", false, true);
+                    Console.WriteLine("file read time "+ timer.Elapsed.TotalMilliseconds);
+                    timer.Stop();
                     if (textSelection == null)
                     {
 
                     }
                     else
                     {
-                        resultFilePath.Add(fileStream.Name);
+
+                        resultFilePath.Add(new SearchFindResponceDto { name = Path.GetFileName(fileStream.Name), path = fileStream.Name });
+                        //resultFilePath.Add(fileStream.Name); 
+
                     }
 
+                    document.Dispose();
+                    fileStream.Dispose();
                 }
 
-
             }
+
+
 
             return resultFilePath;
         }
