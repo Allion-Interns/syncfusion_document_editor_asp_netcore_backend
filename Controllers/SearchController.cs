@@ -15,13 +15,27 @@ namespace Syncfusion_document_editor.Controllers
     [ApiController]
     public class SearchController : ControllerBase
     {
-        [HttpGet]
-        public  ActionResult<List<SearchFindResponceDto>> GetResult()
+        [HttpPost]
+        public ActionResult<List<SearchFindResponceDto>> GetResult(string keyword)
         {
 
             //FindandHighlight();
-            var result = findAll();
+            var result = findAll(keyword);
             return Ok(result);
+        }
+
+        [HttpPost]
+        [Route("getdocument")]
+        public ActionResult<string> getDocinSdft(string docPath)
+        {
+            FileStream stream = new FileStream(docPath, FileMode.Open, FileAccess.ReadWrite);
+
+            Syncfusion.EJ2.DocumentEditor.WordDocument document = Syncfusion.EJ2.DocumentEditor.WordDocument.Load(stream, Syncfusion.EJ2.DocumentEditor.FormatType.Docx);
+
+            string sfdtJson = Newtonsoft.Json.JsonConvert.SerializeObject(document);
+
+            return Ok(sfdtJson);
+
         }
 
 
@@ -56,39 +70,26 @@ namespace Syncfusion_document_editor.Controllers
 
 
 
-        static List<SearchFindResponceDto> findAll()
+
+        static List<SearchFindResponceDto> findAll(string keyword)
         {
             var timer = new Stopwatch();
 
-            
-        
-
-        string[] WordDocumentNames = Directory.GetFiles(@"Project01");
-
+            string[] WordDocumentNames = Directory.GetFiles(@"Project01");
 
             List<FileStream> fileStreams = new List<FileStream>();
 
-
             foreach (string WordDocumentName in WordDocumentNames)
             {
-                //timer.Start();
-                //fileStreams.Add(new FileStream(WordDocumentName, FileMode.Open, FileAccess.ReadWrite, FileShare.ReadWrite));
-
-                //Console.WriteLine(timer.Elapsed.TotalMilliseconds);
-                //timer.Stop();
-
                 try
                 {
-
-
-
                     timer.Start();
                     fileStreams.Add(new FileStream(WordDocumentName, FileMode.Open, FileAccess.ReadWrite));
 
-                    Console.WriteLine("file open time "+ timer.Elapsed.TotalMilliseconds);
+                    Console.WriteLine("file open time " + timer.Elapsed.TotalMilliseconds);
                     timer.Stop();
                 }
-                catch (IOException )
+                catch (IOException)
                 {
                     throw;
                 }
@@ -99,8 +100,6 @@ namespace Syncfusion_document_editor.Controllers
 
                     throw;
                 }
-             
-              
             }
 
             List<SearchFindResponceDto> resultFilePath = new List<SearchFindResponceDto>();
@@ -110,8 +109,8 @@ namespace Syncfusion_document_editor.Controllers
                 using (WordDocument document = new WordDocument(fileStream, FormatType.Automatic))
                 {
                     timer.Start();
-                    TextSelection[] textSelection = document.FindAll("pasindu", false, true);
-                    Console.WriteLine("file read time "+ timer.Elapsed.TotalMilliseconds);
+                    TextSelection[] textSelection = document.FindAll(keyword, false, true);
+                    Console.WriteLine("file read time " + timer.Elapsed.TotalMilliseconds);
                     timer.Stop();
                     if (textSelection == null)
                     {
@@ -119,10 +118,8 @@ namespace Syncfusion_document_editor.Controllers
                     }
                     else
                     {
-
                         resultFilePath.Add(new SearchFindResponceDto { name = Path.GetFileName(fileStream.Name), path = fileStream.Name });
                         //resultFilePath.Add(fileStream.Name); 
-
                     }
 
                     document.Dispose();
@@ -130,9 +127,6 @@ namespace Syncfusion_document_editor.Controllers
                 }
 
             }
-
-
-
             return resultFilePath;
         }
 
