@@ -107,6 +107,11 @@ namespace Syncfusion_document_editor
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
         public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
         {
+            //string license_key = Configuration["SYNCFUSION_LICENSE_KEY"];
+            //if (license_key != null && license_key != string.Empty)
+               
+            Syncfusion.Licensing.SyncfusionLicenseProvider.RegisterLicense("NTk0MzA5QDMxMzkyZTM0MmUzMGVUMFFGOWZtUzdHWEJIMklQZ2l2ZC8vUjJFV2RDZlRjdnIvOENxZ1A4blk9");
+
             if (env.IsDevelopment())
             {
                 app.UseDeveloperExceptionPage();
