@@ -3,8 +3,10 @@ using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc;
 using Syncfusion.EJ2.DocumentEditor;
 using Syncfusion.EJ2.SpellChecker;
+using Syncfusion_document_editor.Services;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Threading.Tasks;
 
 namespace Syncfusion_document_editor.Controllers
@@ -16,6 +18,8 @@ namespace Syncfusion_document_editor.Controllers
         List<DictionaryData> spellDictionary;
         string personalDictPath;
         string path;
+        private SpellCheckService spellCheckService = new SpellCheckService();
+
 
         public DocumentEditorController(IWebHostEnvironment hostingEnvironment)
         {
@@ -32,11 +36,15 @@ namespace Syncfusion_document_editor.Controllers
         [Route("SpellCheck")]
         public  string SpellCheck([FromBody] SpellCheckJsonData spellChecker)
         {
+            var timer = new System.Diagnostics.Stopwatch();
+            
 
             try
             {
                 // SpellCheckDictionary ss = new SpellCheckDictionary(spellDictionary[0]);
                 List<SpellCheckDictionary> ss = new List<SpellCheckDictionary>();
+                
+
                 foreach (var spell in spellDictionary)
                 {
                     if(spell.LanguadeID == spellChecker.LanguageID)
@@ -46,12 +54,43 @@ namespace Syncfusion_document_editor.Controllers
                     
                 }
                 SpellChecker spellCheck = new SpellChecker(ss);
-                spellCheck.GetSuggestions(spellChecker.LanguageID, spellChecker.TexttoCheck, spellChecker.CheckSpelling, spellChecker.CheckSuggestion, spellChecker.AddWord);
-                return Newtonsoft.Json.JsonConvert.SerializeObject(spellCheck);
+
+
+                if (spellChecker.LanguageID == 1053) 
+                {
+                    timer.Start();
+                    spellCheck.CheckSpelling(spellChecker.LanguageID, spellChecker.TexttoCheck);
+
+                    var x = Newtonsoft.Json.JsonConvert.SerializeObject(spellCheck);
+
+                    var replacearray = spellCheckService.CreateProductAsync(spellChecker.TexttoCheck);
+
+                    var result = Newtonsoft.Json.JsonConvert.DeserializeObject<SpellResponse>(x);
+
+                    foreach (var item in replacearray.Result)
+                    {
+                        result.Suggestions.Add(item.value);
+                    }
+                    Debug.WriteLine("file open time=================================================================================== " + timer.ElapsedMilliseconds);
+                    timer.Stop();
+                    return Newtonsoft.Json.JsonConvert.SerializeObject(result);
+                    
+                }
+                else
+                {
+                    timer.Start();
+                    spellCheck.GetSuggestions(spellChecker.LanguageID, spellChecker.TexttoCheck, spellChecker.CheckSpelling, spellChecker.CheckSuggestion, spellChecker.AddWord);
+
+                    return Newtonsoft.Json.JsonConvert.SerializeObject(spellCheck);
+                    Console.WriteLine("file open time " + timer.Elapsed.TotalMilliseconds);
+                    timer.Stop();
+                }
+
             }
             catch(Exception e)
             { 
                 return "{\"SpellCollection\":[],\"HasSpellingError\":false,\"Suggestions\":null}";
+                
             }
         }
 
@@ -83,7 +122,18 @@ namespace Syncfusion_document_editor.Controllers
             public bool AddWord { get; set; }
 
         }
+        public class SpellCollection
+        {
+            public string Text { get; set; }
+            public bool HasSpellError { get; set; }
+        }
 
+        public class SpellResponse
+        {
+            public List<SpellCollection> SpellCollection { get; set; }
+            public bool HasSpellingError { get; set; }
+            public List<string> Suggestions { get; set; }
+        }
 
 
 

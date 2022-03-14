@@ -10,5 +10,24 @@
     "DictionaryPath": "sv.dic",
     "AffixPath": "sv.aff",
     "PersonalDictPath": "customDict.dic"
+  },
+  {
+    "LanguadeID": 2057,
+    "DictionaryPath": "en_GB.dic",
+    "AffixPath": "en_GB.aff",
+    "PersonalDictPath": "customDict.dic"
+  },
+  {
+    "LanguadeID": 1036,
+    "DictionaryPath": "fr.dic",
+    "AffixPath": "fr.aff",
+    "PersonalDictPath": "customDict.dic"
+  },
+  {
+    "LanguadeID": 1049,
+    "DictionaryPath": "ru.dic",
+    "AffixPath": "ru.aff",
+    "PersonalDictPath": "customDict.dic"
   }
+
 ]
