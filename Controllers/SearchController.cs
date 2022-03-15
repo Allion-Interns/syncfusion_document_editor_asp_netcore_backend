@@ -30,6 +30,43 @@ namespace Syncfusion_document_editor.Controllers
             return Ok(result);
         }
 
+
+        [HttpPost]
+        [Route("GetallDocuments")]
+        public ActionResult<List<SearchFindResponceDto>> GetallDocuments()
+        {
+
+            List<SearchFindResponceDto> resultFilePath = new List<SearchFindResponceDto>();
+            string[] WordDocumentNames = Directory.GetFiles(@"Project01");
+
+            List<FileStream> fileStreams = new List<FileStream>();
+
+            foreach (string WordDocumentName in WordDocumentNames)
+            {
+                try
+                {
+                  
+                    fileStreams.Add(new FileStream(WordDocumentName, FileMode.Open, FileAccess.ReadWrite));
+                   
+                }
+
+                catch (Exception)
+                {
+
+                    throw;
+                }
+            }
+
+            foreach (FileStream fileStream in fileStreams)
+            {
+                resultFilePath.Add(new SearchFindResponceDto { name = Path.GetFileName(fileStream.Name), path = fileStream.Name });
+
+            }
+            return resultFilePath;
+        }
+
+
+
         [HttpPost]
         [Route("getdocument")]
         public ActionResult<string> getDocinSdft(string docPath)
